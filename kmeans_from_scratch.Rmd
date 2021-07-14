@@ -33,7 +33,7 @@ interests you the most, or read everything for the complete picture:
 -   Advantages and Disadvantages of k-means
 -   How to find the ideal number of k
 -   Relation to other clustering algorithms, like k-mediods or
-    fuzzy-c-means
+fuzzy-c-means
 -   Summary
 
 With that said, lets dive right into it.
@@ -59,8 +59,7 @@ case the euclidean distance between two points.
 Since we minimize over all clusters *C*, we can write the optimization
 function as follows:
 
-$$ argmin_C = \sum_{i = 1}^k \sum{x \in k} ||x - \bar{x} ||^2 =
-argmin_C \sum_{i = 1}^k |C_i| Var C_i $$
+$$ argmin_C = \sum_{i = 1}^k \sum_{x \in C_i} ||x - \bar{x} ||^2 = argmin_C \sum_{i = 1}^k |C_i| Var C_i $$
 
 with $|C_i|$ being the cardinality of the cluster, i.e. the number of
 observations within it.
@@ -145,12 +144,12 @@ centers <- df[sample(nrow(df), k, replace = FALSE), ]
 Next, we need to calculate the distance of each point to these centers.
 
 ```{r}
-    distances <- matrix(Inf, nrow = nrow(df), ncol = k)
-    for (i in seq_len(nrow(df))) {
-      for (j in seq_len(k)) {
-        distances[i, j] <- euclidean_distance(df[i, ], centers[j, ])
-      }
-    }
+distances <- matrix(Inf, nrow = nrow(df), ncol = k)
+for (i in seq_len(nrow(df))) {
+  for (j in seq_len(k)) {
+    distances[i, j] <- euclidean_distance(df[i, ], centers[j, ])
+  }
+}
 ```
 
 Now we can assign each point to it's closest center. To do that we go
@@ -158,18 +157,18 @@ over the results by row (MARGIN = 1) and select the entry with the
 lowest distance.
 
 ```{r}
-    cluster_id <- apply(distances, 1, which.min)
+cluster_id <- apply(distances, 1, which.min)
 ```
 
 Finally, we need to calculate the new centers for each cluster. To stay
 true to the highly explicit coding style we also do this in a for loop.
 
 ```{r}
-    # Calculate new centers
-    for (i in seq_len(k)) {
-      this_cluster <- df[cluster_id == i,]
-      centers[k, ] <- apply(this_cluster, 2, mean)
-    }
+# Calculate new centers
+for (i in seq_len(k)) {
+  this_cluster <- df[cluster_id == i,]
+  centers[k, ] <- apply(this_cluster, 2, mean)
+}
 ```
 
 And voilá, that's all there is to one round of k-means. Since we
@@ -187,6 +186,11 @@ total WCSS is below a defined threshold.
 
 ```{r}
 my_kmeans <- function(data, k, n_iterations) {
+  # Helper function for euclidean distance 
+  euclidean_distance <- function(p1, p2) {
+    dist <- sqrt(sum((p1-p2)^2))
+    return(dist)
+  }
   # Initialize centers randomly
   centers <- df[sample(nrow(df), k, replace = FALSE), ]
   
@@ -303,7 +307,7 @@ find_elbow <- function(x, y) {
   distances <- apply(df, 1, function(this_point) {
     abs(coef(line_fit)[2]*this_point[1] - this_point[2] + coef(line_fit)[1]) / sqrt(coef(line_fit)[2]^2 + 1^2)
   })
-
+  
   elbow <- c(x = x[which.max(distances)],
              y = y[which.max(distances)])
   
@@ -388,12 +392,12 @@ silhouette <- function(data, cluster_id) {
     for (i in seq_len(nrow(this_cluster))) {
       distance_other_clusters <- c()
       for (j in other_clusters) {
-          other_cluster <- data[cluster_id == j, ]
-          data_tmp <- rbind(this_cluster[i, ], other_cluster)
-          distances <- as.matrix(dist(data_tmp))
-          distances <- distances[-1, 1]
-          distance_other_cluster <- mean(distances)
-          distance_other_clusters <- c(distance_other_clusters, distance_other_cluster)
+        other_cluster <- data[cluster_id == j, ]
+        data_tmp <- rbind(this_cluster[i, ], other_cluster)
+        distances <- as.matrix(dist(data_tmp))
+        distances <- distances[-1, 1]
+        distance_other_cluster <- mean(distances)
+        distance_other_clusters <- c(distance_other_clusters, distance_other_cluster)
       }
       distance_neighbor_cluster[i] <- min(distance_other_clusters)
     }
@@ -639,8 +643,8 @@ initialized in the large cluster. The small cluster will be unable to
 action, lets construct 2 clusters with sizes 10 and 1000.
 
 ```{r}
-cluster_small <- data.frame(x = rnorm(10), y = rnorm(10), cluster = 1)
-cluster_large <- data.frame(x = rnorm(1000) + 5, y = rnorm(1000) + 5, cluster = 2)
+cluster_small <- data.frame(x = rnorm(50), y = rnorm(50), cluster = 1)
+cluster_large <- data.frame(x = rnorm(10000) + 5, y = rnorm(10000) + 5, cluster = 2)
 cluster_sizes <- rbind(cluster_small, cluster_large)
 plot(cluster_sizes$x, cluster_sizes$y, col = cluster_sizes$cluster, asp = 1)
 ```
@@ -702,7 +706,7 @@ genes belonging to multiple pathways).
 
 One can also interpret k-means as a hard clustering variant of a
 gaussian mixture model that does not consider covariances. The
-expectation step is the where each observation is assigned to its closes
+expectation step is the where each observation is assigned to its closest
 center. The maximization step is where the centers are recomputed.
 
 # Summary
