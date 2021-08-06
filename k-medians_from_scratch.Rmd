@@ -154,7 +154,7 @@ set.
 
 Finally, of course you could couple k-medians together with an improved
 initialization, like kmeans++, to make it even more robust. You can find the
-details how to do that from my [article]() on it. See you next time, when we
+details how to do that from my [article](https://towardsdatascience.com/try-this-simple-trick-to-improve-your-clustering-b2d5d502039b) on it. See you next time, when we
 will discuss probably the most advanced variation of k-means, partitioning
 around medoids, concluding this mini-series.
 
