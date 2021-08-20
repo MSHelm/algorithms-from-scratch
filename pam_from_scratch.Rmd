@@ -30,7 +30,7 @@ now always are actual points in the data set. Instead of the centroids, we now
 calculate the median points, ergo the medoids. This increases the explainability 
 of the approach, as the representative point in the data can always be retrieved. 
 
-This is often confused with k-medians (which you can checkout [here]()), where 
+This is often confused with k-medians (which you can checkout [here](https://towardsdatascience.com/use-this-clustering-method-if-you-have-many-outliers-5c99b4cd380d)), where 
 the center point do not need to be an actual object. Consider the following 
 example cluster, consisting of 5 points for 2 dimensions:
 
@@ -434,4 +434,9 @@ goal here was not efficiency, but understanding.
 
 # Summary
 
-
+Congratulations if you made it this far. With PAM, you know now a very sophisticated
+clustering method that can be robustly applied to many data sets. Due to its
+high computational cost, it might not be completely suitable for very large 
+data sets. If this is the case for you, check out algorithms designed for that,
+such as CLARA or CLARANS. This post also concludes my mini-series on k-means and 
+related clustering algorithms. Stay tuned on what comes next!
